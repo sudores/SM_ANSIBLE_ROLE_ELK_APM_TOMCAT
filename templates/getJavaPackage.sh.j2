@@ -1,0 +1,2 @@
+result=`grep -r "Start-Class:" {{ catalina_home }}/webapps/*/META-INF/ | rev | cut -d" " -f1 | rev | tr '\r' ',' | tr '\n' ' ' | rev | cut -d"," -f2- | rev | tr -d " "`
+echo ${result}

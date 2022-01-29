@@ -1,0 +1,7 @@
+---
+# handlers file for apm_elastic
+- name: restartTomcat
+  service: 
+    name: tomcat 
+    enabled: true
+    state: restarted

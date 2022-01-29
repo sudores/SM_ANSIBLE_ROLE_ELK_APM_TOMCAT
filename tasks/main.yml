@@ -1,0 +1,42 @@
+---
+# tasks file for apm_elastic
+- name: Get apm agent jar
+  community.general.maven_artifact:
+    group_id: co.elastic.apm
+    artifact_id: elastic-apm-agent
+    dest: /tmp/apm-agent.jar
+  delegate_to: localhost
+
+- name: Install apm agent
+  ansible.builtin.copy:
+    src: /tmp/apm-agent.jar
+    dest: "{{ catalina_home }}/bin"
+    mode: 0644
+    owner: tomcat
+    group: "{{ tomcat_group }}"
+  notify: restartTomcat
+
+- name: Get java package
+  block:
+    - name: Copy get java package script
+      ansible.builtin.template:
+        src: getJavaPackage.sh.j2
+        dest: /tmp/getJavaPackage.sh
+        mode: 0755
+
+    - name: Execute get java package script
+      ansible.builtin.command:
+        cmd: bash /tmp/getJavaPackage.sh
+      register: java_packages
+
+- name: Copy setenv.sh template to machine
+  ansible.builtin.blockinfile:
+    path: "{{ catalina_home }}/bin/setenv.sh"
+    mode: 0755
+    owner: tomcat
+    group: "{{ tomcat_group }}"
+    backup: true
+    create: true
+    marker: "# {mark} ELASTIC APM ANSIBLE MANAGED BLOCK"
+    block: "{{ apm_args_templete }}"
+  notify: restartTomcat

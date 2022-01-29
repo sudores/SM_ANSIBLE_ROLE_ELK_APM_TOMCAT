@@ -1,0 +1,16 @@
+---
+# defaults file for apm_elastic
+log_level: ERROR
+apm_server_url: http://sm-mon.smiddle.lab:8200
+catalina_home: /opt/tomcat/
+enable_profiler: false
+instrumentations: annotations,apache-commons,asynchttpclient,redisson,spring-amqp,spring-service-name,process,websocket,rabbitmq,jdbc
+apm_args_templete: |
+  export CATALINA_OPTS="$CATALINA_OPTS -javaagent:{{ catalina_home }}/bin/apm-agent.jar"
+  export CATALINA_OPTS="$CATALINA_OPTS -Delastic.apm.service_name=${HOSTNAME}"
+  export CATALINA_OPTS="$CATALINA_OPTS -Delastic.apm.server_url={{ apm_server_url }}"
+  export CATALINA_OPTS="$CATALINA_OPTS -Delastic.apm.log_level={{ log_level }}"
+  export CATALINA_OPTS="$CATALINA_OPTS -Delastic.apm.application_packages={{ java_packages.stdout_lines[0] }}"
+  export CATALINA_OPTS="$CATALINA_OPTS -Delastic.apm.environment={{ host_env }}"
+  export CATALINA_OPTS="$CATALINA_OPTS -Delastic.apm.profiling_inferred_spans_enabled={{ enable_profiler }}"
+  export CATALINA_OPTS="$CATALINA_OPTS -Denable_instrumentations={{ instrumentations }}"
